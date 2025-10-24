@@ -25,9 +25,13 @@ semantic-search-engine/
 Enter your query: What are the key feedstocks studied for marine bioenergy?
 
 Top 3 relevant datasets:
+
 [1] data-emerging-resources-macroalgae | Similarity: 0.82
+
 [2] inl-biomass-feedstock-library-bfl | Similarity: 0.77
+
 [3] algae-energy-resource-summary | Similarity: 0.75
 
 💬 Answer:
+
 The most relevant dataset focuses on macroalgae as a marine bioenergy resource...
