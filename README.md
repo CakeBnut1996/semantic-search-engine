@@ -8,7 +8,7 @@ It allows users to:
 - While the example data originates from crawled HTML pages, the approach works with any text corpus (research papers, reports, knowledge bases, etc.).
 
 ## Repository structure
-
+```
 semantic-search-engine/
 ├── src/
 │ ├── 0_crawl_data_for_testing.py # (Optional) Example data collection
@@ -18,6 +18,7 @@ semantic-search-engine/
 ├── requirements.txt
 ├── README.md
 └── .gitignore
+```
 
 ## Example Output
 
