@@ -1,4 +1,5 @@
 Local Embedding-Based Search and Summarization
+
 This project demonstrates how to build a lightweight semantic search engine on your local machine using embeddings, a vector database, and an LLM for natural-language answers.
 It allows users to:
 - Embed text datasets into a vector database (Chroma).
