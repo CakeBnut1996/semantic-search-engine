@@ -11,9 +11,9 @@ It allows users to:
 
 semantic-search-engine/
 ├── src/
-│   ├── 0_crawl_data_for_testing.py     # (Optional) Example data collection
-│   ├── 1_process_html_chroma_ingest.py # Core: text cleaning, chunking, embedding ('all-MiniLM-L6-v2'), and Chroma ingestion
-│   ├── 2_query_pipeline.py             # Core: semantic search and summarization
+│ ├── 0_crawl_data_for_testing.py # (Optional) Example data collection
+│ ├── 1_process_html_chroma_ingest.py # Core: text cleaning, chunking, embedding ('all-MiniLM-L6-v2'), and Chroma ingestion
+│ ├── 2_query_pipeline.py # Core: semantic search and summarization
 │
 ├── requirements.txt
 ├── README.md
