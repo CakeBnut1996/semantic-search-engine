@@ -1,7 +1,7 @@
-import fitz  # PyMuPDF
-import re, json, os
+import re, json, os, enum, yaml
 import hashlib
 from bs4 import BeautifulSoup
+import tiktoken
 from nltk.tokenize import sent_tokenize
 # import nltk
 # nltk.download('punkt')
@@ -21,6 +21,8 @@ collection = client.get_or_create_collection("kdf_embeddings")
 
 # client.delete_collection("kdf_embeddings") # Delete all records in the collection
 # collection = client.get_or_create_collection("kdf_embeddings")
+
+enc = tiktoken.get_encoding("cl100k_base")  # OpenAI-compatible tokenizer
 
 # === TEXT EXTRACTION ===
 def extract_text_from_html(path):
@@ -68,29 +70,40 @@ def filter_noise(text):
     return "\n".join(clean_lines)
 
 # === CHUNKING ===
-def chunk_text(text, max_passages=6, min_len=100):
-    """
-    Split by paragraphs or sentences into coherent chunks.
-    Keeps 4–6 sentences or paragraphs per chunk, skips very short ones.
-    """
-    paras = [p.strip() for p in text.split("\n") if p.strip()]
-    chunks = []
-    buffer = []
+def num_tokens(text):
+    return len(enc.encode(text))
 
-    for para in paras:
-        # Split long paragraphs into sentences if needed
-        sentences = sent_tokenize(para)
-        buffer.extend(sentences)
-        if len(buffer) >= max_passages:
-            chunk = " ".join(buffer[:max_passages])
-            if len(chunk) > min_len:
-                chunks.append(chunk)
-            buffer = buffer[max_passages:]
-    # final leftover
-    if buffer:
-        chunk = " ".join(buffer)
-        if len(chunk) > min_len:
+def chunk_text(text, max_tokens=256, overlap=40):
+    # overlap: When you create the next chunk, repeat the last 40 tokens from the previous chunk
+    sentences = sent_tokenize(text)
+    chunks = []
+    current = []
+    current_tokens = 0
+
+    for sent in sentences:
+        sent_tokens = num_tokens(sent)
+
+        # If a single sentence is too large, split it hard
+        if sent_tokens > max_tokens:
+            continue
+
+        if current_tokens + sent_tokens > max_tokens:
+            # close the current chunk
+            chunk = " ".join(current)
             chunks.append(chunk)
+
+            # start new chunk with overlap
+            overlap_text = " ".join(current)[-overlap:]
+            current = [overlap_text] if overlap_text else []
+            current_tokens = num_tokens(" ".join(current))
+
+        current.append(sent)
+        current_tokens += sent_tokens
+
+    # leftover
+    if current:
+        chunks.append(" ".join(current))
+
     return chunks
 
 # === DEDUPLICATION ===
@@ -112,6 +125,7 @@ def compute_embeddings(chunks):
     return embeddings
 
 # === PROCESS ALL HTML FILES ===
+
 for filename in os.listdir(data_dir):
     if not filename.endswith(".html"):
         continue
@@ -125,7 +139,7 @@ for filename in os.listdir(data_dir):
     text = filter_noise(text)
     chunks = chunk_text(text)
     chunks = deduplicate_chunks(chunks)
-    print(f"Extracted {len(chunks)} chunks from PDF")
+    print(f"Extracted {len(chunks)} chunks from texts")
 
     embeddings = compute_embeddings(chunks)
     print(f"Computed embeddings shape: {np.array(embeddings).shape}")

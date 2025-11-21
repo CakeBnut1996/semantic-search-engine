@@ -1,7 +1,9 @@
 import numpy as np
 from collections import defaultdict
-import json, os
-from openai import OpenAI
+from google import genai
+from typing import List
+from pydantic import BaseModel, Field
+import re, json, os, enum, yaml
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import chromadb
@@ -35,7 +37,7 @@ model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 # ----------------------------------------------------
 # (3) Enter user query
 # ----------------------------------------------------
-query = input("Enter your query: ")
+query = input("Enter your query: ") # How can biomass feedstocks be used to provide non-fuel ecosystem goods and services?
 query_embedding = model.encode([query])
 similarities = cosine_similarity(query_embedding, embeddings)[0]
 
@@ -51,7 +53,7 @@ dataset_rankings = []
 for dataset_id, entries in dataset_scores.items():
     entries.sort(key=lambda x: x[0], reverse=True)
     top_score = entries[0][0]      # best chunk similarity
-    dataset_rankings.append((dataset_id, top_score, entries[:10]))
+    dataset_rankings.append((dataset_id, top_score, entries[:8]))
 
 dataset_rankings.sort(key=lambda x: x[1], reverse=True)
 
@@ -68,47 +70,59 @@ for rank, (dataset_id, score, top_chunks) in enumerate(dataset_rankings[:top_n_d
         print(f"  Chunk {i}: Similarity={sim:.4f}")
         print(f"  {chunk[:400]}{'...' if len(chunk) > 400 else ''}\n")
 
-# ----------------------------------------------------
-# (5) Alternative. Using Instruct model
-# ----------------------------------------------------
+
 top_n_datasets = 3
 top_dataset_id, top_score, top_chunks = dataset_rankings[0]
 related_datasets = [d for d, _, _ in dataset_rankings[1:top_n_datasets]]
 
-context = "\n\n".join([c for _, c in top_chunks])
-print(f"\n🔎 Top dataset: {top_dataset_id}")
-print(f"Related datasets: {', '.join(related_datasets)}\n")
 
+# ----------------------------------------------------
+# Using Instruct model
+# ----------------------------------------------------
 prompt = f"""
 You are a helpful assistant summarizing information from bioenergy datasets.
 
 User question:
 {query}
 
-Context (from the most relevant dataset: {top_dataset_id}):
-{context[:6000]}
+Context (retrieved datasets and their most relevant text chunks):
+{json.dumps(dataset_rankings[:top_n_datasets], indent=2)}
 
 Instructions:
-1. Use only the context above to produce a concise and factual answer to the user's question.
-2. At the end, list the related datasets that might also contain useful information.
-3. If information is missing, say so rather than guessing.
-
-Related datasets: {', '.join(related_datasets) if related_datasets else 'None'}
+1. Use the context above to produce a concise and factual answer to the user's question.
+2. If information is missing, say so rather than guessing.
 """
 
 # --- Query OpenAI instruct/chat model ---
-response = openai_client.chat.completions.create(
-    model="gpt-5-mini",
-    messages=[
-        {"role": "system", "content": "You are an expert research assistant on bioenergy datasets."},
-        {"role": "user", "content": prompt},
-    ],
-    temperature=0.3,
-)
+class KDFEntry(BaseModel):
+    name_data: str = Field(description="The name of the first-ranked dataset")
+    summary: str = Field(description="A concise summary of the content from the first-ranked dataset")
+    other_data_name: List[str] = Field(description="Names of other relevant datasets")
 
-answer = response.choices[0].message.content
 
-print("\n💬 ======= FINAL ANSWER =======\n")
-print(answer)
-print("\n📘 Main dataset:", top_dataset_id)
-print("📚 Other relevant datasets:", ", ".join(related_datasets))
+class DatasetSummary(BaseModel):
+    name: str = Field(..., description="Name of the dataset")
+    summary: str = Field(..., description="A summary of the dataset content relevant to the query")
+    quote: str = Field(..., description="Representative quote or key snippet from the dataset")
+
+class KDFResponse(BaseModel):
+    answer: str = Field(..., description="A concise and factual answer to the user's question")
+    supporting_datasets: List[DatasetSummary] = Field(
+        ..., description="List of datasets that support the answer, with summaries and representative quotes"
+    )
+
+key_path = os.path.join(root, "data science kdf", "keys", "Gemini.yaml")
+with open(key_path, "r") as f:
+    config = yaml.safe_load(f)
+
+api_key = config["api_key"]
+client_gem = genai.Client(api_key=api_key)
+
+response = client_gem.models.generate_content(
+    model='gemini-2.0-flash',
+    contents = prompt,
+    config={
+        'response_mime_type': 'application/json',
+        'response_schema': KDFResponse,
+    },)
+print(response.text)

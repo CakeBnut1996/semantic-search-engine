@@ -1,9 +1,6 @@
-# --- Ignore everything by default ---
-*
-
-# --- But allow the following ---
-!/.gitignore
-!/README.md
-!/requirements.txt
-!/src/
-!/src/**
+config.yaml
+keys/
+eval/
+references/
+PM/
+notes/
