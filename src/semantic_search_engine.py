@@ -14,7 +14,7 @@ from google import genai
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__name__))
-CONFIG_PATH = os.path.join(BASE_DIR, "config")
+CONFIG_PATH = os.path.join(BASE_DIR, "config.yaml")
 
 with open(CONFIG_PATH, "r") as f:
     config = yaml.safe_load(f)
