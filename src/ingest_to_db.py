@@ -11,11 +11,17 @@ from sentence_transformers import SentenceTransformer  # or use OpenAI API?
 import chromadb
 
 # === CONFIG ===
-root = os.path.dirname(os.path.dirname(os.path.abspath(__name__)))
-data_dir = os.path.join(root, "data science kdf", "data")
+BASE_DIR = os.path.dirname(os.path.abspath(__name__))
+CONFIG_PATH = os.path.join(BASE_DIR, "config")
+
+with open(CONFIG_PATH, "r") as f:
+    config = yaml.safe_load(f)
+
+root = config.get("paths")['ROOT']
+data_dir = os.path.join(root, "data")
 
 # https://github.com/chroma-core/chroma
-db_path = os.path.join(root, "data science kdf", "chroma_db")
+db_path = os.path.join(root, "chroma_db")
 client = chromadb.PersistentClient(path=db_path)
 collection = client.get_or_create_collection("kdf_embeddings")
 

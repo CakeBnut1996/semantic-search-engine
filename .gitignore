@@ -1,4 +1,5 @@
 config.yaml
+src/config.yaml
 keys/
 eval/
 references/
