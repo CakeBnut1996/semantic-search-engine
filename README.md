@@ -1,37 +1,44 @@
 # Local Embedding-Based Search and Summarization
 
-This project demonstrates how to build a lightweight semantic search engine on your local machine using embeddings, a vector database, and an LLM for natural-language answers.
+I develoepd a local semantic search function for a website using a Retrieval-Augmented Generation (RAG) system. It provides end-to-end data ingestion pipelines, embedding generation, vector database management, and LLM-powered retrieval. 
 It allows users to:
 - Embed text datasets into a vector database (Chroma).
-- Query semantically — ask natural-language questions instead of using keywords.
-- Retrieve and summarize the most relevant dataset using a small instruction model or OpenAI API.
-- While the example data originates from crawled HTML pages, the approach works with any text corpus (research papers, reports, knowledge bases, etc.).
+- Query semantically, i.e., ask natural-language questions instead of using keywords.
+- Retrieve and summarize the most relevant dataset using Gemini API.
+- While the example data are crawled HTML pages, the approach works with any text corpus (research papers, reports, knowledge bases, etc.).
 
 ## Repository structure
 ```
 semantic-search-engine/
 ├── src/
-│ ├── 0_crawl_data_for_testing.py # (Optional) Example data collection
-│ ├── 1_process_html_chroma_ingest.py # Core: text cleaning, chunking, embedding ('all-MiniLM-L6-v2'), and Chroma ingestion
-│ ├── 2_query_pipeline.py # Core: semantic search and summarization
+| ├── ingest_to_db.py # offline data ingestion pipeline
+│ ├── semantic_search_engine.py # functions of retrieval and and generation
+│ ├── app.py # visualization 
 │
 ├── requirements.txt
 ├── README.md
 └── .gitignore
 ```
 
-## Example Output
+## Usage
+1. Clone the repository
+```
+cd src
+```
 
-Enter your query: What are the key feedstocks studied for marine bioenergy?
+2. Install dependencies
+```
+pip install -r requirements.txt
+```
 
-Top 3 relevant datasets:
+3. Configure your environment
+Add your API keys (e.g., Gemini, OpenAI) into the config file (e.g., config.yaml)
 
-[1] data-emerging-resources-macroalgae | Similarity: 0.82
+Ensure your data or vector database directories exist (e.g., data/, chroma_db/).
 
-[2] inl-biomass-feedstock-library-bfl | Similarity: 0.77
+4. Run the application
+```
+streamlit run app.py
+```
 
-[3] algae-energy-resource-summary | Similarity: 0.75
-
-💬 Answer:
-
-The most relevant dataset focuses on macroalgae as a marine bioenergy resource...
+<img width="613" height="733" alt="image" src="https://github.com/user-attachments/assets/62e0ef9c-233e-43c9-9820-54103b017425" />
