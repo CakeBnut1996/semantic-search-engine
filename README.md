@@ -13,7 +13,8 @@ semantic-search-engine/
 ├── src/
 | ├── ingest_to_db.py # offline data ingestion pipeline
 │ ├── semantic_search_engine.py # functions of retrieval and and generation
-│ ├── app.py # visualization 
+│ ├── app.py # visualization
+| ├── Rest of the files are for testing purposes
 │
 ├── requirements.txt
 ├── README.md
@@ -32,9 +33,8 @@ pip install -r requirements.txt
 ```
 
 3. Configure your environment
-Add your API keys (e.g., Gemini, OpenAI) into the config file (e.g., config.yaml)
 
-Ensure your data or vector database directories exist (e.g., data/, chroma_db/).
+Add your API keys (e.g., Gemini, OpenAI) into the config file (e.g., config.yaml). Ensure your data or vector database directories exist (e.g., data/, chroma_db/).
 
 4. Run the application
 ```
