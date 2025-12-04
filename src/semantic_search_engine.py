@@ -13,13 +13,12 @@ from google import genai
 # -------------------------------------------------------------------------
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__name__))
-CONFIG_PATH = os.path.join(BASE_DIR, "config.yaml")
+ROOT = os.path.dirname(os.path.abspath(__name__))
+CONFIG_PATH = os.path.join(ROOT, "config.yaml")
 
 with open(CONFIG_PATH, "r") as f:
     config = yaml.safe_load(f)
 
-ROOT = config.get("paths")['ROOT']
 DB_PATH = os.path.join(ROOT, "chroma_db")
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
