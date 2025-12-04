@@ -14,10 +14,9 @@ from google import genai
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 ROOT = os.path.dirname(os.path.abspath(__name__))
-CONFIG_PATH = os.path.join(ROOT, "config.yaml")
-
-with open(CONFIG_PATH, "r") as f:
-    config = yaml.safe_load(f)
+# CONFIG_PATH = os.path.join(ROOT, "config.yaml")
+# with open(CONFIG_PATH, "r") as f:
+#     config = yaml.safe_load(f)
 
 DB_PATH = os.path.join(ROOT, "chroma_db")
 
