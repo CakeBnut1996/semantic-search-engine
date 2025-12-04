@@ -12,7 +12,7 @@ import chromadb
 
 # === CONFIG ===
 BASE_DIR = os.path.dirname(os.path.abspath(__name__))
-CONFIG_PATH = os.path.join(BASE_DIR, "config.yaml")
+CONFIG_PATH = os.path.join(BASE_DIR, "config.yaml") # forestry and algriculture
 
 with open(CONFIG_PATH, "r") as f:
     config = yaml.safe_load(f)

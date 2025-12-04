@@ -21,7 +21,6 @@ with open(CONFIG_PATH, "r") as f:
 
 ROOT = config.get("paths")['ROOT']
 DB_PATH = os.path.join(ROOT, "chroma_db")
-KEY_PATH = os.path.join(ROOT, "keys", "Gemini.yaml")
 
 MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
 TOP_N_DATASETS = 5
@@ -72,7 +71,7 @@ _client_gem = _load_gemini_client()
 # -------------------------------------------------------------------------
 # Core search function
 # -------------------------------------------------------------------------
-def retrieve_data(user_query: str, sim_thre: float = 0.1):
+def retrieve_data(user_query: str, sim_thre: float = 0.1): # Maximum number of documents
     """Perform semantic retrieval and summarization for a given user query."""
     if not user_query.strip():
         return {"error": "Empty query."}
@@ -153,5 +152,6 @@ def generate_answers(user_query, rankings):
         output = json.loads(response.text)
     except Exception as e:
         logging.error(f"Gemini call failed: {e}")
+        output = {"error": str(e)}
 
     return output
