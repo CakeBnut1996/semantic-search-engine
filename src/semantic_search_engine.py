@@ -1,5 +1,5 @@
 import os, json, yaml, re, logging
-import numpy as np
+import streamlit as st
 from collections import defaultdict
 from typing import List, Dict, Any
 from sentence_transformers import SentenceTransformer
@@ -55,7 +55,8 @@ def _load_chroma_collection() -> chromadb.Collection:
 
 
 def _load_gemini_client() -> genai.Client:
-    api_key = config.get("keys")['gemini']
+    # api_key = config.get("keys")['gemini']
+    api_key = st.secrets["gkeys"]["gemini"]
     if not api_key:
         raise ValueError("Gemini API key missing in YAML file.")
     return genai.Client(api_key=api_key)
