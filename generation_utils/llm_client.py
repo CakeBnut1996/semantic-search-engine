@@ -2,6 +2,7 @@ import os
 from typing import Optional, Type, Any
 from dotenv import load_dotenv
 from pydantic import BaseModel
+import streamlit as st
 
 # --- IMPORTS FOR PROVIDERS ---
 try:
@@ -44,7 +45,8 @@ class LLMClient:
     def _init_client(self):
         if self.provider == "gemini":
             if not HAS_GEMINI: raise ImportError("Run `pip install google-genai`")
-            self.client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+            api_key = os.getenv("GEMINI_API_KEY") or st.secrets.get("gkeys", {}).get("gemini")
+            self.client = genai.Client(api_key=api_key)
 
         elif self.provider == "openai":
             if not HAS_OPENAI: raise ImportError("Run `pip install openai`")
