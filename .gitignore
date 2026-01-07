@@ -1,7 +1,7 @@
-config.yaml
-src/config.yaml
-keys/
-eval/
-references/
+writing/
+script/
 PM/
 notes/
+archive/
+.env
+eval/
