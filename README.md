@@ -10,11 +10,12 @@ It allows users to:
 ## Repository structure
 ```
 semantic-search-engine/
-├── src/
-| ├── ingest_to_db.py # offline data ingestion pipeline
-│ ├── semantic_search_engine.py # functions of retrieval and and generation
-│ ├── app.py # visualization
-| ├── Rest of the files are used for testing.
+├── chroma_db/ # embedded data
+├── retrieval_utils/ # retrieval functions
+├── generation_utils/ # generation functions
+├── display_utils/ # streamlit display functions
+├── io_utils/ # read and save files
+├── app.py # visualization
 │
 ├── requirements.txt
 ├── README.md
@@ -35,7 +36,6 @@ Add your API keys (e.g., Gemini, OpenAI) into the config file (e.g., config.yaml
 
 4. Run the application
 ```
-cd src
 streamlit run app.py
 ```
 ## Output description
@@ -44,4 +44,5 @@ streamlit run app.py
 3. Direct Quote: Once a relevant reference is found, the system extracts the exact most relevant sentence or paragraph from the original document.
    
 ## Illustration
-<img width="613" height="733" alt="image" src="https://github.com/user-attachments/assets/62e0ef9c-233e-43c9-9820-54103b017425" />
+<img width="1742" height="727" alt="image" src="https://github.com/user-attachments/assets/3f8d38b1-9f53-4476-81fa-60e5e805b37d" />
+
