@@ -131,6 +131,15 @@ Any frontend (Drupal now, other framework later) should only depend on:
 - stable JSON result schema
 - existing URL params: search_api_fulltext, f[], page, items_per_page
 
+## LLM Deployment (GPT-OSS via Ollama)
+This system is configured to use ORNL's **GPT-OSS:20B** locally via Ollama to ensure data privacy and zero API costs.
+
+### VM Setup Instructions for Agent:
+1.  **Requirement**: Ensure the VM has internal `camden.ornl.gov` access.
+2.  **Model Pull**: Run `oras pull --output ~/.ollama/models "camden.ornl.gov/models/gpt-oss:20b"`.
+3.  **Local API**: Ensure Ollama is running (`ollama serve`). The application connects via the OpenAI-compatible endpoint at `http://localhost:11434/v1`.
+4.  **Configuration**: The code in `llm_client.py` is already updated to support the `ollama` provider. Set `active_student: "ornl_gpt_oss"` in `config.yaml` to activate it.
+
 ## How to wrap SEED code
 Recommended wrapper style:
 - Keep SEED repository as a library dependency or git submodule inside gateway service.
