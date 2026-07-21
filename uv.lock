@@ -541,6 +541,7 @@ dependencies = [
     { name = "pandas" },
     { name = "protobuf" },
     { name = "pydantic" },
+    { name = "pysolr" },
     { name = "python-dotenv" },
     { name = "pyyaml" },
     { name = "requests" },
@@ -565,6 +566,7 @@ requires-dist = [
     { name = "pandas", specifier = "~=2.3.3" },
     { name = "protobuf", specifier = "~=6.33.0" },
     { name = "pydantic", specifier = "~=2.12.2" },
+    { name = "pysolr", specifier = ">=3.11.0" },
     { name = "python-dotenv", specifier = "~=1.1.1" },
     { name = "pyyaml", specifier = "~=6.0.3" },
     { name = "requests", specifier = "~=2.32.5" },
@@ -2715,6 +2717,16 @@ sdist = { url = "https://files.pythonhosted.org/packages/0f/49/4cea918a08f02817a
 wheels = [
     { url = "https://files.pythonhosted.org/packages/5a/dc/491b7661614ab97483abf2056be1deee4dc2490ecbf7bff9ab5cdbac86e1/pyreadline3-3.5.4-py3-none-any.whl", hash = "sha256:eaf8e6cc3c49bcccf145fc6067ba8643d1df34d604a1ec0eccbf7a18e6d3fae6", size = 83178, upload-time = "2024-09-19T02:40:08.598Z" },
 ]
+
+[[package]]
+name = "pysolr"
+version = "3.11.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "setuptools" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/0d/2a/b6c793a17e173524ccc7a90cdd8ebb65264f6ebcdb1942eba2478ec3a85e/pysolr-3.11.0.tar.gz", hash = "sha256:bbd0e7467835316880f994b55386c9bc3c146733c17d85a3fed317755976c40a", size = 63983, upload-time = "2025-11-18T10:42:40.247Z" }
 
 [[package]]
 name = "python-dateutil"

@@ -25,4 +25,5 @@ dependencies = [
     "openai>=1.0.0",
     "lab>=8.8",
     "statsmodels>=0.14.6",
+    "pysolr>=3.11.0",
 ]

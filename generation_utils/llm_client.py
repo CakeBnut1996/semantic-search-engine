@@ -44,9 +44,18 @@ class LLMClient:
         print(f"🔌 LLM Client connected: {self.provider}/{self.model_name}")
 
     def _init_client(self):
-        # Helper to fetch key from env first, then streamlit secrets
+        # Helper to fetch key from env first, then streamlit secrets if available
         def get_key(env_name, secret_path):
-            return os.getenv(env_name) or st.secrets.get("gkeys", {}).get(secret_path) or st.secrets.get(env_name)
+            key = os.getenv(env_name)
+            if key:
+                return key
+            
+            # Fallback to streamlit secrets only if we are in a streamlit context
+            try:
+                import streamlit as st
+                return st.secrets.get("gkeys", {}).get(secret_path) or st.secrets.get(env_name)
+            except (ImportError, RuntimeError, AttributeError):
+                return None
 
         if self.provider == "gemini":
             if not HAS_GEMINI: raise ImportError("Run `pip install google-genai`")
@@ -67,12 +76,6 @@ class LLMClient:
             if not HAS_GROQ: raise ImportError("Run `pip install groq`")
             api_key = get_key("GROQ_API_KEY", "groq")
             self.client = Groq(api_key=api_key)
-
-        elif self.provider == "ollama":
-            if not HAS_OPENAI: raise ImportError("Run `pip install openai` for Ollama support")
-            # Ollama is local, doesn't need a real key but OpenAI client requires one
-            base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
-            self.client = OpenAI(api_key="ollama", base_url=base_url)
 
         else:
             raise ValueError(f"Unknown provider: {self.provider}")
@@ -106,16 +109,6 @@ class LLMClient:
 
             # --- GROQ ---
             elif self.provider == "groq":
-                messages = [{"role": "user", "content": prompt}]
-                if system_instruction:
-                    messages.insert(0, {"role": "system", "content": system_instruction})
-                res = self.client.chat.completions.create(
-                    model=self.model_name, messages=messages
-                )
-                return res.choices[0].message.content
-
-            # --- OLLAMA (OpenAI Compatible) ---
-            elif self.provider == "ollama":
                 messages = [{"role": "user", "content": prompt}]
                 if system_instruction:
                     messages.insert(0, {"role": "system", "content": system_instruction})
@@ -172,22 +165,8 @@ class LLMClient:
                 response_formatted = Response.model_validate(json.loads(response.choices[0].message.content))
                 return response_formatted
 
-            # --- OLLAMA STRUCTURED ---
-            elif self.provider == "ollama":
-                # Using JSON mode for Ollama as it is most reliable across versions
-                messages = [
-                    {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
-                    {"role": "user", "content": f"Output in JSON format matching this schema: {schema_model.model_json_schema()}\n\n{prompt}"}
-                ]
-                response = self.client.chat.completions.create(
-                    model=self.model_name,
-                    messages=messages,
-                    response_format={"type": "json_object"}
-                )
-                return schema_model.model_validate_json(response.choices[0].message.content)
-
             else:
-                raise NotImplementedError("Structured output only supported for Gemini, Groq, OpenAI, and Ollama.")
+                raise NotImplementedError("Structured output only supported for Gemini, Groq, and OpenAI.")
 
         except Exception as e:
             print(f"⚠️ Structured Generation Error: {e}")
