@@ -1,20 +1,33 @@
 # --- SEARCH SYSTEM CONFIGURATION ---
-# Solr-only architecture for both keyword and semantic search.
+# Solr gateway with LLM summarization.
 
 # [1] RETRIEVAL STRATEGY (Solr Server)
 retrieval:
-  # Solr Integration
-  solr_url: 'http://solr:8983/solr/biokdf' # The endpoint for your Solr server.
-  
-  # Search parameters
-  num_docs: 5                     # Number of results to return.
+  solr_url: 'http://solr:8983/solr/biokdf'
+  num_docs: 5
+  # Problem 3, 4: Configurable fields
+  query_fields: 'search_api_fulltext'
+  result_fields: 'id,title,url,score,search_api_relevance,field_publication_year,created'
+  sort_order: 'search_api_relevance desc, field_publication_year desc, created desc'
+  # Problem 6: URL Template
+  url_template: '{url}' 
   
 # [2] AI GENERATION SETTINGS
-# Select the LLM that will summarize the Solr search results.
 generation:
-  active_student: 'groq_llama'
+  active_student: 'ollama_llama'
 
 llm:
   groq_llama:
     provider: 'groq'
-    model: 'meta-llama/llama-4-scout-17b-16e-instruct' # used for application
+    model: 'meta-llama/llama-4-scout-17b-16e-instruct'
+  
+  # Problem 2: Ollama Support
+  ollama_llama:
+    provider: 'ollama'
+    model: 'llama3:8b'
+    base_url: 'http://localhost:11434/v1'
+
+  openai_gpt4:
+    provider: 'openai'
+    model: 'gpt-4o'
+

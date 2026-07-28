@@ -9,7 +9,7 @@ from pathlib import Path
 from datetime import datetime
 
 # Import text extraction utility
-from io_utils.pre_processor import (
+from .pre_processor import (
     extract_text_and_url_from_html,
     clean_text,
     filter_noise

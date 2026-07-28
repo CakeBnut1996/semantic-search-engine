@@ -1,0 +1,17 @@
+# SEED Search Gateway Systemd Service
+# Save as /etc/systemd/system/seed.service
+
+[Unit]
+Description=SEED Search Gateway (FastAPI)
+After=network.target
+
+[Service]
+User=seed
+Group=www-data
+WorkingDirectory=/opt/semantic-exploration-discovery
+Environment="PATH=/opt/semantic-exploration-discovery/.venv/bin"
+EnvironmentFile=/opt/semantic-exploration-discovery/.env
+ExecStart=/opt/semantic-exploration-discovery/.venv/bin/uvicorn seed.api.server:app --host 127.0.0.1 --port 8000
+
+[Install]
+WantedBy=multi-user.target

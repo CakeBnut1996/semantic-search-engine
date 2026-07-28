@@ -1,15 +1,35 @@
-writing/
-data_raw/
-script/
-PM/
-archive/
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Local configuration
 .env
-eval/
-eval_utils
-.venv
 .devcontainer
 .idea
 .vscode
+config.local.yaml
+
+# Data and logs
+data_raw/
+*.log
+
+# Workspace specific
+writing/
+script/
+PM/
+archive/
+eval/
+eval_utils
 wordpress_key.pem
 semantic-search-main.zip
 user_testing/
