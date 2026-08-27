@@ -1,39 +1,29 @@
 # --- GLOBAL SETTINGS ---
 data:
-  data_to_db: "data_raw"
-  db_path: "chroma_db"
-  chunk_size: 256
-  chunk_overlap: 40
+  data_to_db: "data_raw" # Path to local raw data directory (adjust if connecting directly to a database)
+  db_path: "chroma_db" # Path to local vector database where embeddings are saved (adjust if using a remote database)
+  chunk_size: 256 # the size of each data chunk when processing the raw data
+  chunk_overlap: 40 # the number of overlapping tokens between consecutive chunks
 
 retrieval:
-  num_docs: 5
-  chunks_per_doc: 2
-  active_db: "demo"
+  num_docs: 5 # number of documents to retrieve
+  chunks_per_doc: 2 # number of chunks to retrieve per document
+  active_db: "demo" 
   active_embedding: "mini_lm"
 
 generation:
-  active_student: "groq_llama2"
+  active_student: "groq_gpt_oss"
 
 llm:
-  gemini_pro:
-    provider: "gemini"
-    model: "gemini-2.5-flash"
+  groq_gpt_oss:
+    provider: "groq"
+    model: "openai/gpt-oss-120b" # Free tier on Groq
+  groq_qwen:
+    provider: "groq"
+    model: "qwen/qwen3.8-27b" # Free tier on Groq
   gemini_flash:
     provider: "gemini"
-    model: "gemini-2.0-flash"
-  openai_mini:
-    provider: "openai"
-    model: "gpt-4o-mini" # # https://platform.openai.com/docs/pricing
-  groq_llama:
-    provider: "groq"
-    model: "Llama-3.1-8b-Instant" # # https://console.groq.com/docs/model/llama-3.1-8b-instant # used for paper
-  groq_llama2:
-    provider: "groq"
-    model: "meta-llama/llama-4-scout-17b-16e-instruct" # https://console.groq.com/docs/rate-limits # used for application
-  anthropics:
-    provider: "anthropic"
-    model: "claude-3-haiku-20240307" # https://platform.claude.com/docs/en/about-claude/pricing
-
+    model: "gemini-2.5-flash" # Free tier on Google Gemini
 
 embeddings:
   mini_lm:
@@ -48,15 +38,5 @@ embeddings:
     model: "Snowflake/snowflake-arctic-embed-xs"
 
 db:
-  mini_lm:
-    collection: "all-MiniLM-L6-v2_all_data"
-  gte:
-    collection: "gte-small_all_data"
-  bge:
-    collection: "bge-small-en-v1.5_all_data"
-  e5:
-    collection: "e5-small-v2_all_data"
-  snowflake:
-    collection: "snowflake-arctic-embed-xs_all_data"
   demo:
     collection: "kdf-demo"

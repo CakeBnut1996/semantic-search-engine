@@ -1,4 +1,4 @@
-import os, json
+import os, json, re
 from typing import Type, Any
 from dotenv import load_dotenv
 from pydantic import BaseModel
@@ -44,9 +44,17 @@ class LLMClient:
         print(f"🔌 LLM Client connected: {self.provider}/{self.model_name}")
 
     def _init_client(self):
-        # Helper to fetch key from env first, then streamlit secrets
+        # Helper to fetch key from env first, then streamlit secrets if available
         def get_key(env_name, secret_path):
-            return os.getenv(env_name) or st.secrets.get("gkeys", {}).get(secret_path) or st.secrets.get(env_name)
+            val = os.getenv(env_name)
+            if val:
+                return val
+            try:
+                if hasattr(st, "secrets") and st.secrets:
+                    return st.secrets.get("gkeys", {}).get(secret_path) or st.secrets.get(env_name)
+            except Exception:
+                pass
+            return None
 
         if self.provider == "gemini":
             if not HAS_GEMINI: raise ImportError("Run `pip install google-genai`")
@@ -138,23 +146,47 @@ class LLMClient:
 
             elif self.provider == "groq":
                 # https://console.groq.com/docs/structured-outputs
+                schema_json = schema_model.model_json_schema()
                 messages = [
-                    {"role": "system", "content": "You are a helpful assistant that outputs JSON."},
+                    {
+                        "role": "system",
+                        "content": (
+                            "You are a helpful assistant that outputs JSON matching this JSON schema:\n"
+                            f"{json.dumps(schema_json)}"
+                        ),
+                    },
                     {"role": "user", "content": prompt}
                 ]
-                response = self.client.chat.completions.create(
-                    model=self.model_name,
-                    messages=messages,
-                    response_format={
-                        "type": "json_schema",
-                        "json_schema": {
-                            "name": "Response",
-                            "schema": Response.model_json_schema()
+                try:
+                    response = self.client.chat.completions.create(
+                        model=self.model_name,
+                        messages=messages,
+                        response_format={
+                            "type": "json_schema",
+                            "json_schema": {
+                                "name": schema_model.__name__,
+                                "schema": schema_json
+                            }
                         }
-                    }
-                )
-                response_formatted = Response.model_validate(json.loads(response.choices[0].message.content))
-                return response_formatted
+                    )
+                except Exception as groq_err:
+                    # Fallback to json_object if the model does not support response_format json_schema
+                    if "json_schema" in str(groq_err) or "400" in str(groq_err):
+                        response = self.client.chat.completions.create(
+                            model=self.model_name,
+                            messages=messages,
+                            response_format={"type": "json_object"}
+                        )
+                    else:
+                        raise groq_err
+
+                raw_content = response.choices[0].message.content.strip()
+                # Clean markdown backticks if present
+                if raw_content.startswith("```"):
+                    raw_content = re.sub(r"^```(?:json)?\n?", "", raw_content)
+                    raw_content = re.sub(r"\n?```$", "", raw_content)
+
+                return schema_model.model_validate_json(raw_content)
 
             else:
                 raise NotImplementedError("Structured output only supported for Gemini, Groq, and OpenAI.")

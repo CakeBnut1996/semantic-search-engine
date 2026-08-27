@@ -9,7 +9,10 @@ class DatasetSummary(BaseModel):
 
 class Response(BaseModel):
     """The structured final response containing the answer and supporting evidence."""
-    answer: Optional[str] = Field(None,description="A concise and factual answer to the user's question based on retrieval")
+    answer: Optional[str] = Field(
+        None,
+        description="A concise and factual answer to the user's question based on retrieval. If the retrieved context does not contain enough information to answer the question, state clearly that the answer was not found in the documents."
+    )
     name_top: Optional[str] = Field(None,description="dataset_id from the top retrieval")
     supporting_datasets: List[DatasetSummary] = Field(
         default_factory=list,

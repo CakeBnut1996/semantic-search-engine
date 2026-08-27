@@ -1,4 +1,4 @@
-from io_utils.load_db import load_embedding_model, get_db_collection, get_or_create_collection
+from ingestion_utils.load_db import load_embedding_model, get_db_collection, get_or_create_collection
 from collections import defaultdict
 from pydantic import BaseModel
 from typing import List, Dict, Any, Optional

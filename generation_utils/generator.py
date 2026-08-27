@@ -10,7 +10,7 @@ class StudentGenerator:
         self.llm = LLMClient(provider, model_name)
 
     def generate(self, query: str, context: str, schema: Optional[Type[BaseModel]] = None) -> Union[str, BaseModel]:
-        system_instr = "You are a helpful assistant. Answer based strictly on the context provided."
+        system_instr = "You are a helpful assistant. Answer based strictly on the context provided. If the context does not contain enough information to answer the question, state that the information was not found in the documents."
         prompt = f"Context:\n{context}\n\nUser question: {query}\n"
 
         if schema:

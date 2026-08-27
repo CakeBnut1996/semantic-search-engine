@@ -7,7 +7,7 @@ import tiktoken
 from bs4 import BeautifulSoup
 from nltk.tokenize import sent_tokenize
 from typing import List, Any, Tuple
-from io_utils.load_db import load_embedding_model, get_or_create_collection
+from ingestion_utils.load_db import load_embedding_model, get_or_create_collection
 
 
 def _normalize_url(url: str) -> str:
@@ -186,22 +186,21 @@ def run_ingestion(
     """
 
     # 1. Initialize Resources
-    root_path = Path.cwd().parent
-    db_path = os.path.join(root_path, db_path)
-    collection = get_or_create_collection(db_path, collection_name)
+    project_root = Path(__file__).resolve().parent.parent
+    full_db_path = str((project_root / db_path).resolve()) if not os.path.isabs(db_path) else db_path
+    collection = get_or_create_collection(full_db_path, collection_name)
     model = load_embedding_model(embedding_model_name)
 
     # 2. Find Files
-    
-    data_dir = os.path.join(root_path, data_dir)
+    full_data_dir = str((project_root / data_dir).resolve()) if not os.path.isabs(data_dir) else data_dir
 
-    if not os.path.exists(data_dir):
-        print(f"❌ Error: Data directory '{data_dir}' not found.")
+    if not os.path.exists(full_data_dir):
+        print(f"❌ Error: Data directory '{full_data_dir}' not found.")
         return
 
-    data_dir_path = Path(data_dir)
+    data_dir_path = Path(full_data_dir)
     files = sorted(data_dir_path.rglob("*.html"))
-    print(f"\n🚀 Found {len(files)} HTML files. Starting ingestion from {data_dir}...\n")
+    print(f"\n🚀 Found {len(files)} HTML files. Starting ingestion from {full_data_dir}...\n")
 
     # 3. Process Loop
     for file_path in files:
@@ -237,3 +236,35 @@ def run_ingestion(
 
     count = collection.count()
     print(f"\n✅ Ingestion Complete! Collection '{collection_name}' now contains {count} chunks.")
+
+
+def main():
+    import yaml
+
+    project_root = Path(__file__).resolve().parent.parent
+    config_path = project_root / "config.yaml"
+
+    if not config_path.exists():
+        print(f"❌ Config file not found at {config_path}")
+        return
+
+    with open(config_path, "r", encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+
+    active_emb_key = cfg["retrieval"]["active_embedding"]
+    active_emb_model = cfg["embeddings"][active_emb_key]["model"]
+    active_db_key = cfg["retrieval"]["active_db"]
+    collection_name = cfg["db"][active_db_key]["collection"]
+
+    run_ingestion(
+        data_dir=cfg["data"]["data_to_db"],
+        db_path=cfg["data"]["db_path"],
+        collection_name=collection_name,
+        embedding_model_name=active_emb_model,
+        chunk_size=cfg["data"]["chunk_size"],
+        chunk_overlap=cfg["data"]["chunk_overlap"]
+    )
+
+
+if __name__ == "__main__":
+    main()
